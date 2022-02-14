@@ -4,6 +4,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 project(my_modbus)
 
+include(FetchContent)
+FetchContent_Declare(
+    ObserverModel
+    GIT_REPOSITORY https://github.com/HomeMaintenance/ObserverModel.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(ObserverModel)
+
 add_library(
     ModbusConversions
     Conversions.h
