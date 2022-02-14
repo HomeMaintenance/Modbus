@@ -12,6 +12,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ObserverModel)
 
+add_subdirectory(test)
+
 add_library(
     ModbusConversions
     Conversions.h
