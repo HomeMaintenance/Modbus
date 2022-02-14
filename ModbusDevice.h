@@ -75,7 +75,7 @@ namespace mb{
              * @brief Print statistics of connection
              *  Success- and Error counters
              */
-            virtual void print_counters() final;
+            void print_counters();
             /**
              * @brief Period time for reading values
              *
@@ -102,7 +102,7 @@ namespace mb{
              * @return true: Read succeeded
              * @return false: Read failed
              */
-            virtual bool read_all_registers();
+            virtual bool read_all_registers() const = 0;
 
         private:
             /**

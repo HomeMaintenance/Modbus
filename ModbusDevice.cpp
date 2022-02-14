@@ -117,11 +117,6 @@ namespace mb{
         }
     }
 
-    bool Device::read_all_registers()
-    {
-        return true;
-    }
-
     void Device::read_values_task()
     {
         #ifdef DEBUG
