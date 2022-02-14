@@ -35,14 +35,14 @@ namespace mb{
              * @param ipAddress Ip address of the device
              * @param port Port number of the device
              */
-            Device(const char* ipAddress, int port = 502);
+            Device(const char* ipAddress, int port = 502, bool start_thread = false);
             /**
              * @brief Construct a new Device object
              *
              * @param ipAddress Ip address of the device
              * @param port Port number of the device
              */
-            Device(std::string ipAddress, int port = 502);
+            Device(std::string ipAddress, int port = 502, bool start_thread = false);
             Device(const Device& other) = delete;
             ~Device();
             /**
@@ -102,7 +102,7 @@ namespace mb{
              * @return true: Read succeeded
              * @return false: Read failed
              */
-            virtual bool read_all_registers() const = 0;
+            virtual bool read_all_registers() = 0;
 
         private:
             /**
@@ -121,7 +121,7 @@ namespace mb{
              * @param ipAddress ipAddress of the device
              * @param port Port number of the device
              */
-            void init(const char* ipAddress, int port = 502);
+            void init(const char* ipAddress, int port = 502, bool start_thread = false);
             /**
              * @brief Thread for cyclic reading values.<br>
              * Cycle time: #read_values_period

@@ -4,14 +4,15 @@
 
 class TestDevice : public mb::Device {
 public:
-    TestDevice(std::string ipAddress, int port = 502);
+    TestDevice(std::string ipAddress, int port = 502, bool start_thread = false);
 
-    virtual bool read_all_registers() const override;
+    virtual bool read_all_registers() override;
 
     int test = 0;
-private:
+
     mb::Register<int> intRegister;
     mb::Register<short> shortRegister;
     mb::Register<long> longRegister;
     mb::Register<float> floatRegister;
+private:
 };

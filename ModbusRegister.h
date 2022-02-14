@@ -3,11 +3,13 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <ctime>
 #include "ModbusDevice.h"
 
 namespace mb{
 
     std::string printVector(std::vector<uint16_t> input);
+
 
     /**
      * @brief Modbus register for a #mb::Device
@@ -30,8 +32,10 @@ namespace mb{
                 addr(addr_),
                 factor(factor_),
                 unit(unit_),
-                dataSize(sizeof(T)/2)
+                dataSize(sizeof(T)/2),
+                data_cache(dataSize,0)
             {
+                auto data = readRawData();
             }
             Register(const Register& other) = delete;
             ~Register() = default;
@@ -51,6 +55,8 @@ namespace mb{
              */
             std::string unit = "";
 
+            int cache_max_age{3000}; // milliseconds
+
         private:
             /**
              * @brief Data vector for raw data of the register
@@ -61,12 +67,29 @@ namespace mb{
              * @brief Length of the register in numbers of words(16bit)
              *
              */
-            unsigned short dataSize = 0;
+            unsigned short dataSize{0};
             /**
              * @brief #mb::Device instance this register belongs to
              *
              */
             Device* device = nullptr;
+
+            std::clock_t cache_creation_time{-3100};
+
+            std::vector<uint16_t> data_cache;
+
+            bool cache_dirty(){
+                std::clock_t time_now = std::clock();
+                long next_update_time = cache_creation_time + cache_max_age;
+                bool result = time_now >= next_update_time;
+                return result;
+            }
+
+            void update_data_cache(std::vector<uint16_t> new_data){
+                std::clock_t update_time = std::clock();
+                data_cache = new_data;
+                cache_creation_time = update_time;
+            }
 
         public:
             /**
@@ -75,13 +98,19 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return std::vector<uint16_t> Data vector with raw data from the register
              */
-            std::vector<uint16_t> readRawData(bool* ret = nullptr) const
+            std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr)
             {
+                if(!force && !cache_dirty()){
+                    if(ret)
+                        *ret = dataSize;
+                    return data_cache;
+                }
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
                 device->modbus_mtx.lock();
                 int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
                 device->modbus_mtx.unlock();
+                update_data_cache(data);
                 if (ret) {
                     *ret = status == dataSize;
                 }
@@ -113,17 +142,18 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return T Value of the register
              */
-            T getValue(bool* ret = nullptr) const
+            T getValue(bool force = false, bool* ret = nullptr)
             {
-                std::vector<uint16_t> rawData = readRawData(ret);
                 short temp16{0};
                 int temp32{0};
                 long temp64{0};
                 T tempT{0};
+                std::vector<uint16_t> rawData = readRawData(force, ret);
                 if(rawData.size() != dataSize){
                     std::string assert_message = "Invalid data size read from device "+device->ipAddress+", expected " + std::to_string(dataSize) + " got "+std::to_string(rawData.size())+".";
                     std::cout<<assert_message<<std::endl;
-                    *ret = false;
+                    if(ret)
+                        *ret = false;
                     return static_cast<T>(0);
                 }
                 switch(rawData.size()) {

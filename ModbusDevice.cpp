@@ -6,12 +6,13 @@
 
 namespace mb{
 
-    void Device::init(const char* ipAddress_, int port_)
+    void Device::init(const char* ipAddress_, int port_, bool _start_thread /* = false */)
     {
         ipAddress = ipAddress_;
         port = port_;
         connect(ipAddress.c_str(), port);
-        start_thread();
+        if(_start_thread)
+            start_thread();
     }
 
     void Device::start_thread()
@@ -25,12 +26,12 @@ namespace mb{
         }
     }
 
-    Device::Device(const char* ipAddress_, int port_/*=502*/){
+    Device::Device(const char* ipAddress_, int port_/*=502*/, bool _start_thread /* = false */){
         init(ipAddress_, port_);
     }
 
-    Device::Device(std::string ipAddress_, int port_/*=502*/){
-        init(ipAddress_.c_str(), port_);
+    Device::Device(std::string ipAddress_, int port_/*=502*/, bool _start_thread /* = false */){
+        init(ipAddress_.c_str(), port_, _start_thread);
     }
 
     Device::~Device()

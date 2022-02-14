@@ -1,16 +1,16 @@
 #include "TestDevice.h"
 
-TestDevice::TestDevice(std::string ipAddress, int port):
-    mb::Device(ipAddress, port),
+TestDevice::TestDevice(std::string ipAddress, int port, bool start_thread):
+    mb::Device(ipAddress, port, start_thread),
     intRegister(this, 10),
-    shortRegister(this, 11),
-    longRegister(this, 12),
-    floatRegister(this, 13)
+    shortRegister(this, 12),
+    longRegister(this, 13),
+    floatRegister(this, 15)
 {
 
 }
 
-bool TestDevice::read_all_registers() const
+bool TestDevice::read_all_registers()
 {
     intRegister.getValue();
     shortRegister.getValue();
