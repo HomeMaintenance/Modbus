@@ -2,8 +2,8 @@
 #include <modbus.h>
 #include <string>
 #include <vector>
-#include <ModbusDevice.h>
 #include <cassert>
+#include "ModbusDevice.h"
 
 namespace mb{
 
@@ -30,9 +30,8 @@ namespace mb{
                 addr(addr_),
                 factor(factor_),
                 unit(unit_),
-                data(std::vector<uint16_t>(sizeof(T)/2, 0))
+                dataSize(sizeof(T)/2)
             {
-                dataSize = data.size();
             }
             Register(const Register& other) = delete;
             ~Register() = default;
@@ -57,7 +56,7 @@ namespace mb{
              * @brief Data vector for raw data of the register
              *
              */
-            std::vector<uint16_t> data = std::vector<uint16_t>(0,0);
+
             /**
              * @brief Length of the register in numbers of words(16bit)
              *
@@ -76,9 +75,10 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return std::vector<uint16_t> Data vector with raw data from the register
              */
-            std::vector<uint16_t> readRawData(bool* ret = nullptr)
+            std::vector<uint16_t> readRawData(bool* ret = nullptr) const
             {
                 assert(device != nullptr && "Device must not be nullptr");
+                std::vector<uint16_t> data(dataSize,0);
                 device->modbus_mtx.lock();
                 int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
                 device->modbus_mtx.unlock();
@@ -113,7 +113,7 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return T Value of the register
              */
-            T getValue(bool* ret = nullptr)
+            T getValue(bool* ret = nullptr) const
             {
                 std::vector<uint16_t> rawData = readRawData(ret);
                 short temp16{0};
