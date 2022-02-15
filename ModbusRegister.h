@@ -5,6 +5,9 @@
 #include <cassert>
 #include <ctime>
 #include "ModbusDevice.h"
+#ifdef MODBUS_DEBUG
+#include <iostream>
+#endif
 
 namespace mb{
 
@@ -107,10 +110,18 @@ namespace mb{
             std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr) const
             {
                 if(!force && !cache_dirty()){
+                    #ifdef MODBUS_DEBUG
+                    std::cout << "Use cache" << std::endl;
+                    #endif
                     if(ret)
                         *ret = true;
                     return *data_cache;
                 }
+                #ifdef MODBUS_DEBUG
+                if(force)
+                    std::cout << "Forced update, ";
+                std::cout << "Update cache" << std::endl;
+                #endif
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
                 device->modbus_mtx.lock();
