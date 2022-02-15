@@ -4,7 +4,7 @@
 
 class TestDevice : public mb::Device {
 public:
-    TestDevice(std::string ipAddress, int port = 502, bool start_thread = false);
+    TestDevice(std::string ipAddress, int port = 502);
 
     virtual bool read_all_registers() override;
 

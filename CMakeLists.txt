@@ -46,7 +46,6 @@ if(PROJECT_IS_TOP_LEVEL)
 
     doxygen_add_docs(doxygen_target
         ${CMAKE_SOURCE_DIR}
-        ALL
         COMMENT "Run doxygen_target"
     )
 endif()

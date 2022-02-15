@@ -4,7 +4,7 @@
 #include <thread>
 
 int main(int argc, char **argv){
-    TestDevice testDevice("192.168.178.113",502, false);
+    TestDevice testDevice("192.168.178.113",502);
     testDevice.intRegister.getValue();
     testDevice.intRegister.getValue();
     testDevice.intRegister.getValue(true);

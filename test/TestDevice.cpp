@@ -1,7 +1,7 @@
 #include "TestDevice.h"
 
-TestDevice::TestDevice(std::string ipAddress, int port, bool start_thread):
-    mb::Device(ipAddress, port, start_thread),
+TestDevice::TestDevice(std::string ipAddress, int port):
+    mb::Device(ipAddress, port),
     intRegister(this, 10),
     shortRegister(this, 12),
     longRegister(this, 13),
