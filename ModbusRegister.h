@@ -32,13 +32,19 @@ namespace mb{
                 addr(addr_),
                 factor(factor_),
                 unit(unit_),
-                dataSize(sizeof(T)/2),
-                data_cache(dataSize,0)
+                dataSize(sizeof(T)/2)
             {
+                cache_creation_time = new std::clock_t{-3100};
+                data_cache = new std::vector<uint16_t>(dataSize,0);
                 auto data = readRawData();
             }
             Register(const Register& other) = delete;
-            ~Register() = default;
+            ~Register(){
+                delete cache_creation_time;
+                cache_creation_time = nullptr;
+                delete data_cache;
+                data_cache = nullptr;
+            };
             /**
              * @brief Address of the register
              *
@@ -74,21 +80,21 @@ namespace mb{
              */
             Device* device = nullptr;
 
-            std::clock_t cache_creation_time{-3100};
+            std::clock_t* cache_creation_time;
 
-            std::vector<uint16_t> data_cache;
+            std::vector<uint16_t>* data_cache;
 
-            bool cache_dirty(){
+            bool cache_dirty() const {
                 std::clock_t time_now = std::clock();
-                long next_update_time = cache_creation_time + cache_max_age;
+                long next_update_time = *cache_creation_time + cache_max_age;
                 bool result = time_now >= next_update_time;
                 return result;
             }
 
-            void update_data_cache(std::vector<uint16_t> new_data){
+            void update_data_cache(std::vector<uint16_t> new_data) const {
                 std::clock_t update_time = std::clock();
-                data_cache = new_data;
-                cache_creation_time = update_time;
+                *data_cache = new_data;
+                *cache_creation_time = update_time;
             }
 
         public:
@@ -98,12 +104,12 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return std::vector<uint16_t> Data vector with raw data from the register
              */
-            std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr)
+            std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr) const
             {
                 if(!force && !cache_dirty()){
                     if(ret)
                         *ret = true;
-                    return data_cache;
+                    return *data_cache;
                 }
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
@@ -118,23 +124,6 @@ namespace mb{
             }
 
             /**
-             * @brief Write raw data to the register
-             *
-             * @param input Data vector to be written to the register
-             * @param ret Return status (true: success, false: fail)
-             */
-            void writeRawData(const std::vector<uint16_t>* input, bool* ret = nullptr)
-            {
-                assert(device != nullptr);
-                device->modbus_mtx.lock();
-                int status = modbus_write_registers(device->connection, addr, dataSize, input->data());
-                device->modbus_mtx.unlock();
-                if (ret) {
-                    *ret = status == dataSize;
-                }
-            }
-
-            /**
              * @brief Get value from the register
              *
              * Uses #readRawData to get data and then converts it to T.
@@ -142,7 +131,7 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return T Value of the register
              */
-            T getValue(bool force = false, bool* ret = nullptr)
+            T getValue(bool force = false, bool* ret = nullptr) const
             {
                 short temp16{0};
                 int temp32{0};
@@ -173,6 +162,23 @@ namespace mb{
                     break;
                 }
                 return tempT;
+            }
+
+            /**
+             * @brief Write raw data to the register
+             *
+             * @param input Data vector to be written to the register
+             * @param ret Return status (true: success, false: fail)
+             */
+            void writeRawData(const std::vector<uint16_t>* input, bool* ret = nullptr)
+            {
+                assert(device != nullptr);
+                device->modbus_mtx.lock();
+                int status = modbus_write_registers(device->connection, addr, dataSize, input->data());
+                device->modbus_mtx.unlock();
+                if (ret) {
+                    *ret = status == dataSize;
+                }
             }
 
         public:
