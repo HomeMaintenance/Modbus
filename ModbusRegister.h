@@ -5,6 +5,7 @@
 #include <cassert>
 #include <ctime>
 #include "ModbusDevice.h"
+#include "ModbusRegisterCache.h"
 #ifdef MODBUS_DEBUG
 #include <iostream>
 #endif
@@ -37,14 +38,11 @@ namespace mb{
                 unit(unit_),
                 dataSize(sizeof(T)/2)
             {
-                cache_creation_time = new std::clock_t{-3100};
-                data_cache = new std::vector<uint16_t>(dataSize,0);
+                data_cache = new RegisterCache();
                 auto data = readRawData();
             }
             Register(const Register& other) = delete;
             ~Register(){
-                delete cache_creation_time;
-                cache_creation_time = nullptr;
                 delete data_cache;
                 data_cache = nullptr;
             };
@@ -83,22 +81,7 @@ namespace mb{
              */
             Device* device = nullptr;
 
-            std::clock_t* cache_creation_time;
-
-            std::vector<uint16_t>* data_cache;
-
-            bool cache_dirty() const {
-                std::clock_t time_now = std::clock();
-                long next_update_time = *cache_creation_time + cache_max_age;
-                bool result = time_now >= next_update_time;
-                return result;
-            }
-
-            void update_data_cache(std::vector<uint16_t> new_data) const {
-                std::clock_t update_time = std::clock();
-                *data_cache = new_data;
-                *cache_creation_time = update_time;
-            }
+            RegisterCache* data_cache = nullptr;
 
         public:
             /**
@@ -109,13 +92,13 @@ namespace mb{
              */
             std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr) const
             {
-                if(!force && !cache_dirty()){
+                if(!force && !data_cache->dirty()){
                     #ifdef MODBUS_DEBUG
                     std::cout << "Use cache" << std::endl;
                     #endif
                     if(ret)
                         *ret = true;
-                    return *data_cache;
+                    return data_cache->get_data();
                 }
                 #ifdef MODBUS_DEBUG
                 if(force)
@@ -127,7 +110,7 @@ namespace mb{
                 device->modbus_mtx.lock();
                 int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
                 device->modbus_mtx.unlock();
-                update_data_cache(data);
+                data_cache->update(data, status);
                 if (ret) {
                     *ret = status == dataSize;
                 }

@@ -27,6 +27,8 @@ add_library(
     ModbusDevice.cpp
     ModbusRegister.h
     ModbusRegister.cpp
+    ModbusRegisterCache.h
+    ModbusRegisterCache.cpp
 )
 target_include_directories(ModbusDevice PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(libmodbus CONFIG REQUIRED)
