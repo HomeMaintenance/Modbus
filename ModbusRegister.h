@@ -102,7 +102,7 @@ namespace mb{
             {
                 if(!force && !cache_dirty()){
                     if(ret)
-                        *ret = dataSize;
+                        *ret = true;
                     return data_cache;
                 }
                 assert(device != nullptr && "Device must not be nullptr");
