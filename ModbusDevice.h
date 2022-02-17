@@ -76,13 +76,6 @@ namespace mb{
              *
              */
             bool online;
-            /**
-             * @brief Function to read all values. Called inside #read_values_task
-             *
-             * @return true: Read succeeded
-             * @return false: Read failed
-             */
-            virtual bool read_all_registers() = 0;
 
         private:
             /**

@@ -5,12 +5,6 @@ RegisterCache::RegisterCache(){
     time = std::clock();
 }
 
-void RegisterCache::update(std::vector<uint16_t>& _data, int& last_read_status){
-    time = std::clock();
-    data = _data;
-    _register_read_status = last_read_status;
-}
-
 std::vector<uint16_t> RegisterCache::get_data() const{
     if(_register_read_status == data.size())
         return data;
