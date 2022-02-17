@@ -14,7 +14,7 @@ namespace mb{
      * @brief Modbus device
      *
      */
-    class Device: public Subject
+    class Device
     {
         public:
             //properties
