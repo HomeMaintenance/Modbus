@@ -8,3 +8,14 @@ TestDevice::TestDevice(std::string ipAddress, int port):
     longRegister = new mb::Register<long>(this, 13);
     floatRegister = new mb::Register<float>(this, 15);
 }
+
+TestDevice::~TestDevice(){
+    delete intRegister;
+    intRegister = nullptr;
+    delete shortRegister;
+    shortRegister = nullptr;
+    delete longRegister;
+    longRegister = nullptr;
+    delete floatRegister;
+    floatRegister = nullptr;
+}
