@@ -12,7 +12,7 @@ unsigned int convertToUInt(std::vector<uint16_t> input){
 
 int convertToInt(std::vector<uint16_t> input){
     int retVal(static_cast<int>(convertToUInt(input)));
-    int mask = 1 << 15 + (input.size()-1) * 16;
+    int mask = 1 << (15 + (input.size()-1) * 16);
     if(retVal & mask){
         retVal = (retVal & ~mask) - mask;
     }
@@ -24,7 +24,7 @@ int convertToInt(std::vector<uint16_t> input){
 
 int convertToInt(unsigned int input, unsigned int length){
     int retVal(static_cast<int>(input));
-    int mask = 1 << 15 + (length-1) * 16;
+    int mask = 1 << (15 + (length-1) * 16);
     if(retVal & mask){
         retVal = (retVal & ~mask) - mask;
     }

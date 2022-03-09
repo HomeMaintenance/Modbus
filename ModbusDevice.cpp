@@ -68,7 +68,7 @@ namespace mb{
         uint16_t tab_reg[32] = {0};
         mb = modbus_new_tcp("192.168.178.107",502);
         modbus_connect(mb);
-        int read_registers = modbus_read_registers(mb,2,5,tab_reg);
+        volatile int read_registers = modbus_read_registers(mb,2,5,tab_reg);
         modbus_close(mb);
         modbus_free(mb);
         for(int i=0; i<32; ++i){

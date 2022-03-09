@@ -32,11 +32,11 @@ namespace mb{
              * @param unit_ Unit of the register value
              */
             explicit Register(Device* device_, int addr_, float factor_ = 1., std::string unit_ = "") :
-                device(device_),
                 addr(addr_),
                 factor(factor_),
                 unit(unit_),
-                dataSize(sizeof(T)/2)
+                dataSize(sizeof(T)/2),
+                device(device_)
             {
                 data_cache = new RegisterCache();
                 auto data = readRawData(true);
