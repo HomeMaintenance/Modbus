@@ -2,6 +2,7 @@
 #include <ctime>
 #include <vector>
 #include <type_traits>
+#include<stdint.h>
 
 namespace mb{
 class RegisterCache{
@@ -22,6 +23,6 @@ public:
 private:
     std::clock_t time;
     std::vector<uint16_t> data;
-    int _register_read_status;
+    unsigned int _register_read_status;
 };
 }
