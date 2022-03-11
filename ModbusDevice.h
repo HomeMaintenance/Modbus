@@ -44,7 +44,7 @@ namespace mb{
              */
             Device(std::string ipAddress, int port = 502);
             Device(const Device& other) = delete;
-            ~Device();
+            virtual ~Device();
             /**
              * @brief Modbus connection pointer
              *

@@ -5,7 +5,7 @@
 class TestDevice : public mb::Device {
 public:
     TestDevice(std::string ipAddress, int port = 502);
-    ~TestDevice();
+    virtual ~TestDevice();
 
     int test = 0;
 

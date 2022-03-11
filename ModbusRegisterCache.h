@@ -8,7 +8,7 @@ namespace mb{
 class RegisterCache{
 public:
     RegisterCache();
-    ~RegisterCache() = default;
+    virtual ~RegisterCache() = default;
     template<typename T>
     void update(std::vector<uint16_t>& _data, T last_read_status){
         static_assert(std::is_integral<T>::value, "Integral required.");

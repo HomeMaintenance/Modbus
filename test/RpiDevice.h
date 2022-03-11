@@ -5,7 +5,7 @@
 class RpiDevice: public mb::Device{
 public:
     RpiDevice(std::string ipAddress, int port = 502);
-    ~RpiDevice();
+    virtual ~RpiDevice();
 
     mb::Register<int>* testRegister1;
 };
