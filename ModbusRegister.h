@@ -1,5 +1,6 @@
 #pragma once
 #include <modbus.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <cassert>
@@ -42,7 +43,7 @@ namespace mb{
                 auto data = readRawData(true);
             }
             Register(const Register& other) = delete;
-            ~Register(){
+            virtual ~Register(){
                 delete data_cache;
                 data_cache = nullptr;
             };
@@ -164,11 +165,11 @@ namespace mb{
              * @param input Data vector to be written to the register
              * @param ret Return status (true: success, false: fail)
              */
-            bool writeRawData(const std::vector<uint16_t>* input, bool* ret = nullptr)
+            bool writeRawData(const std::vector<uint16_t>& input, bool* ret = nullptr)
             {
                 assert(device != nullptr);
                 device->modbus_mtx.lock();
-                int status = modbus_write_registers(device->connection, addr, dataSize, input->data());
+                int status = modbus_write_registers(device->connection, addr, dataSize, input.data());
                 device->modbus_mtx.unlock();
                 bool result = status == dataSize;
                 if (ret) {
@@ -187,8 +188,8 @@ namespace mb{
             bool setValue(short input, bool* ret = nullptr)
             {
                 std::vector<uint16_t> buffer(dataSize);
-                buffer = input & 0xFFFFFFFF;
-                bool status = writeRawData(&buffer,&status);
+                buffer[0] = input & 0xFFFFFFFF;
+                bool status = writeRawData(buffer,&status);
                 if(ret)
                     *ret = status;
                 if(status)
@@ -209,7 +210,7 @@ namespace mb{
                 input /= factor;
                 std::vector<uint16_t> buffer(dataSize);
                 MODBUS_SET_INT32_TO_INT16(buffer.data(), 0, input);
-                bool status = writeRawData(&buffer,ret);
+                bool status = writeRawData(buffer,ret);
                 if(ret)
                     *ret = status;
                 if(status)
@@ -230,7 +231,7 @@ namespace mb{
                 input /= factor;
                 std::vector<uint16_t> buffer(dataSize);
                 MODBUS_SET_INT32_TO_INT16(buffer.data(), 0, input);
-                bool status = writeRawData(&buffer);
+                bool status = writeRawData(buffer);
                 if(ret)
                     *ret = status;
                 if(status)
@@ -251,7 +252,7 @@ namespace mb{
                 input /= factor;
                 std::vector<uint16_t> buffer(dataSize);
                 MODBUS_SET_INT64_TO_INT16(buffer.data(), 0, input);
-                bool status = writeRawData(&buffer);
+                bool status = writeRawData(buffer);
                 if(ret)
                     *ret = status;
                 if(status)
@@ -273,7 +274,7 @@ namespace mb{
                 int temp = input/factor;
                 std::vector<uint16_t> buffer(dataSize);
                 MODBUS_SET_INT32_TO_INT16(buffer.data(), 0, temp);
-                bool status = writeRawData(&buffer);
+                bool status = writeRawData(buffer);
                 if(ret)
                     *ret = status;
                 if(status)
@@ -294,7 +295,7 @@ namespace mb{
                 long temp = input/factor;
                 std::vector<uint16_t> buffer(dataSize);
                 MODBUS_SET_INT64_TO_INT16(buffer.data(), 0, temp);
-                bool status = writeRawData(&buffer);
+                bool status = writeRawData(buffer);
                 if(ret)
                     *ret = status;
                 if(status)
