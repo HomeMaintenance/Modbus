@@ -77,6 +77,10 @@ namespace mb{
              */
             bool online;
 
+            void reportError();
+
+            bool resetConnection();
+
         private:
             /**
              * @brief Initialize device. Called inside constructor
@@ -85,6 +89,8 @@ namespace mb{
              * @param port Port number of the device
              */
             void init(const char* ipAddress, int port = 502);
+
+            unsigned int errorCounter{0};
     };
 
     /**

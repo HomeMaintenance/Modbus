@@ -93,6 +93,9 @@ namespace mb{
              */
             std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr) const
             {
+                #ifdef MODBUS_DEBUG
+                std::cout << "Reading  " << device->ipAddress << " register " << addr << ", " << dataSize << std::endl;
+                #endif
                 if(!force && !data_cache->dirty()){
                     #ifdef MODBUS_DEBUG
                     std::cout << "Use cache" << std::endl;
@@ -134,12 +137,16 @@ namespace mb{
                 T tempT{0};
                 std::vector<uint16_t> rawData = readRawData(force, ret);
                 if(rawData.size() != dataSize){
-                    std::string assert_message = "Invalid data size read from device "+device->ipAddress+", expected " + std::to_string(dataSize) + " got "+std::to_string(rawData.size())+".";
+                    std::string assert_message = "\tInvalid data size read from device "+device->ipAddress+", expected " + std::to_string(dataSize) + " got "+std::to_string(rawData.size())+".";
                     std::cout<<assert_message<<std::endl;
+                    device->reportError();
                     if(ret)
                         *ret = false;
                     return static_cast<T>(0);
                 }
+                #ifdef MODBUS_DEBUG
+                std::cout << "\t success" << std::endl;
+                #endif
                 switch(rawData.size()) {
                     case 2:
                         temp32 = MODBUS_GET_INT32_FROM_INT16(rawData.data(), 0);

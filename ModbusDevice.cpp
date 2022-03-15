@@ -25,7 +25,7 @@ namespace mb{
     Device::~Device()
     {
         disconnect();
-        #ifdef DEBUG
+        #ifdef MODBUS_DEBUG
             std::cerr << "modbus device "+ ipAddress + ":" << port << " destroyed" << std::endl;
         #endif // DEBUG
     }
@@ -35,7 +35,7 @@ namespace mb{
         connection = modbus_new_tcp(ipAddress_,port_);
         if (modbus_connect(connection) == -1)
         {
-            #ifdef DEBUG
+            #ifdef MODBUS_DEBUG
                 std::cerr << "modbus connection error to ip " + ipAddress + ":" << port_ << std::endl;
             #endif // DEBUG
             modbus_free(connection);
@@ -44,7 +44,7 @@ namespace mb{
         }
         else
         {
-            #ifdef DEBUG
+            #ifdef MODBUS_DEBUG
                 std::cerr << "modbus successfully connected to ip " + ipAddress + ":" << port_ << std::endl;
             #endif // DEBUG
             return true;
@@ -56,7 +56,7 @@ namespace mb{
         modbus_close(connection);
         modbus_free(connection);
         connection = nullptr;
-        #ifdef DEBUG
+        #ifdef MODBUS_DEBUG
             std::cerr << "modbus connection " + ipAddress + ":" << port << " disconnected"<< std::endl;
         #endif // DEBUG
         return true;
@@ -74,5 +74,36 @@ namespace mb{
         for(int i=0; i<32; ++i){
             std::cout << "tab_reg[" << i << "]: " << tab_reg[i] << std::endl;
         }
+    }
+
+    bool Device::resetConnection(){
+        disconnect();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        for(int tries = 1; tries < 11; ++tries){
+            std::cout << "\t\t Try " << tries << std::endl;
+            connect(ipAddress.c_str(), port);
+            if(connection != nullptr){
+                std::cout << "\t\t Got new connection" << std::endl;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+        errorCounter = 0;
+        return connection != nullptr;
+    }
+
+    void Device::reportError(){
+        if(errorCounter > 10){
+            std::cout << "Resetting connection ..." << std::endl;
+            if(resetConnection()){
+                std::cout << "\t Success!" << std::endl;
+            }
+            else{
+                std::cerr << "\t Error! Try again later!" << std::endl;
+            }
+            return;
+        }
+        std::cerr << "Error Reported. Counter: " << errorCounter << std::endl;
+        errorCounter++;
     }
 }

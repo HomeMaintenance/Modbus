@@ -36,6 +36,10 @@ target_link_libraries(ModbusDevice PUBLIC modbus)
 target_link_libraries(ModbusDevice PUBLIC ModbusConversions)
 target_link_libraries(ModbusDevice PUBLIC ObserverModel)
 
+if(TRUE OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    target_compile_definitions(ModbusDevice PUBLIC MODBUS_DEBUG=1)
+endif()
+
 if(PROJECT_IS_TOP_LEVEL)
     find_package(Doxygen
         REQUIRED dot
