@@ -39,7 +39,7 @@ void test_repeated_connection(){
     testDevice.disconnect();
     for(int i = 0; i < 20000; ++i){
         std::cout << i << " ----------------------------------------" << std::endl;
-        testDevice.reportError();
+        testDevice.reportError(0);
     }
 }
 

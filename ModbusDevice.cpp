@@ -33,10 +33,11 @@ namespace mb{
     bool Device::connect(const char* ipAddress_, int port_)
     {
         connection = modbus_new_tcp(ipAddress_,port_);
-        if (modbus_connect(connection) == -1)
+        bool connect_error = modbus_connect(connection) < 0;
+        if (connect_error)
         {
             #ifdef MODBUS_DEBUG
-                std::cerr << "modbus connection error to ip " + ipAddress + ":" << port_ << std::endl;
+                std::cerr << "modbus connection error \"" << modbus_strerror(errno) <<  "\" to TCP/IP " + ipAddress + ":" << port_ << std::endl;
             #endif // DEBUG
             modbus_free(connection);
             connection = nullptr;
@@ -77,7 +78,7 @@ namespace mb{
     }
 
     bool Device::resetConnection(){
-        modbus_mtx.lock();
+        std::lock_guard<std::mutex> lk(modbus_mtx);
         disconnect();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         for(int tries = 1; tries < 11; ++tries){
@@ -87,14 +88,14 @@ namespace mb{
                 std::cout << "\t\t Got new connection" << std::endl;
                 break;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
-        modbus_mtx.unlock();
-        errorCounter = 0;
+        errorMap.clear();
         return connection != nullptr;
     }
 
-    void Device::reportError(){
+    void Device::reportError(int addr){
+        unsigned int& errorCounter = errorMap[addr];
         if(errorCounter > 10){
             std::cout << "Resetting connection ..." << std::endl;
             if(resetConnection()){

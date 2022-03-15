@@ -111,9 +111,8 @@ namespace mb{
                 #endif
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
-                device->modbus_mtx.lock();
+                std::lock_guard<std::mutex> lk(device->modbus_mtx);
                 int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
-                device->modbus_mtx.unlock();
                 data_cache->update(data, status);
                 if (ret) {
                     *ret = status == dataSize;
@@ -137,9 +136,10 @@ namespace mb{
                 T tempT{0};
                 std::vector<uint16_t> rawData = readRawData(force, ret);
                 if(rawData.size() != dataSize){
-                    std::string assert_message = "\tInvalid data size read from device "+device->ipAddress+", expected " + std::to_string(dataSize) + " got "+std::to_string(rawData.size())+".";
+                    std::string assert_message = "\tInvalid data size read from device " + device->ipAddress + ", expected " + std::to_string(dataSize) + " got " + std::to_string(rawData.size()) + ".\n\t";
+                    assert_message += std::string("Error: \"" + std::string(modbus_strerror(errno)) + "\"\n");
                     std::cout<<assert_message<<std::endl;
-                    device->reportError();
+                    device->reportError(addr);
                     if(ret)
                         *ret = false;
                     return static_cast<T>(0);
@@ -175,9 +175,8 @@ namespace mb{
             bool writeRawData(const std::vector<uint16_t>& input, bool* ret = nullptr)
             {
                 assert(device != nullptr);
-                device->modbus_mtx.lock();
+                std::lock_guard<std::mutex> lk(device->modbus_mtx);
                 int status = modbus_write_registers(device->connection, addr, dataSize, input.data());
-                device->modbus_mtx.unlock();
                 bool result = status == dataSize;
                 if (ret) {
                     *ret = result;

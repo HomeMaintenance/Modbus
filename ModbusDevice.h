@@ -77,7 +77,7 @@ namespace mb{
              */
             bool online;
 
-            void reportError();
+            void reportError(int addr);
 
             bool resetConnection();
 
@@ -90,7 +90,7 @@ namespace mb{
              */
             void init(const char* ipAddress, int port = 502);
 
-            unsigned int errorCounter{0};
+            std::map<int, unsigned int> errorMap;
     };
 
     /**
