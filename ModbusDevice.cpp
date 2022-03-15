@@ -77,6 +77,7 @@ namespace mb{
     }
 
     bool Device::resetConnection(){
+        modbus_mtx.lock();
         disconnect();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         for(int tries = 1; tries < 11; ++tries){
@@ -88,6 +89,7 @@ namespace mb{
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
+        modbus_mtx.unlock();
         errorCounter = 0;
         return connection != nullptr;
     }

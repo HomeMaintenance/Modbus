@@ -34,7 +34,17 @@ void test_cache(){
     testDevice.intRegister->getValue();
 }
 
+void test_repeated_connection(){
+    TestDevice testDevice("192.168.178.113",502);
+    testDevice.disconnect();
+    for(int i = 0; i < 20000; ++i){
+        std::cout << i << " ----------------------------------------" << std::endl;
+        testDevice.reportError();
+    }
+}
+
 int main(int argc, char **argv){
-    test_rpi_modbus();
+    // test_rpi_modbus();
+    test_repeated_connection();
     return 0;
 }
