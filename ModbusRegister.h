@@ -139,7 +139,6 @@ namespace mb{
                     std::string assert_message = "\tInvalid data size read from device " + device->ipAddress + ", expected " + std::to_string(dataSize) + " got " + std::to_string(rawData.size()) + ".\n\t";
                     assert_message += std::string("Error: \"" + std::string(modbus_strerror(errno)) + "\"\n");
                     std::cout<<assert_message<<std::endl;
-                    device->reportError(addr);
                     if(ret)
                         *ret = false;
                     return static_cast<T>(0);
