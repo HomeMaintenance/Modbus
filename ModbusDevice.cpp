@@ -81,36 +81,12 @@ namespace mb{
         }
     }
 
-    bool Device::resetConnection(){
-        std::lock_guard<std::mutex> lk(modbus_mtx);
-        disconnect();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        for(int tries = 1; tries < 11; ++tries){
-            std::cout << "\t\t Try " << tries << std::endl;
-            connect(ipAddress.c_str(), port);
-            if(connection != nullptr){
-                std::cout << "\t\t Got new connection" << std::endl;
-                break;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
-        errorMap.clear();
-        return connection != nullptr;
+    void Device::setOnline(bool status){
+        if(status != _online)
+            _online = status;
     }
 
-    void Device::reportError(int addr){
-        unsigned int& errorCounter = errorMap[addr];
-        if(errorCounter > 10){
-            std::cout << "Resetting connection ..." << std::endl;
-            if(resetConnection()){
-                std::cout << "\t Success!" << std::endl;
-            }
-            else{
-                std::cerr << "\t Error! Try again later!" << std::endl;
-            }
-            return;
-        }
-        std::cerr << "Error Reported. Counter: " << errorCounter << std::endl;
-        errorCounter++;
+    bool Device::online() const {
+        return _online;
     }
 }

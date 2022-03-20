@@ -75,11 +75,10 @@ namespace mb{
              * @brief Online status of device
              *
              */
-            bool online;
+            bool online() const;
 
-            void reportError(int addr);
-
-            bool resetConnection();
+        protected:
+            void setOnline(bool status);
 
         private:
             /**
@@ -89,8 +88,7 @@ namespace mb{
              * @param port Port number of the device
              */
             void init(const char* ipAddress, int port = 502);
-
-            std::map<int, unsigned int> errorMap;
+            bool _online;
     };
 
     /**

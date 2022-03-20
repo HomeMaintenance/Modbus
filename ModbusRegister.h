@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
-#include <ctime>
+#include <variant>
 #include "ModbusDevice.h"
 #include "ModbusRegisterCache.h"
 #ifdef MODBUS_DEBUG
@@ -14,7 +14,6 @@
 namespace mb{
 
     std::string printVector(std::vector<uint16_t> input);
-
 
     /**
      * @brief Modbus register for a #mb::Device
@@ -81,6 +80,11 @@ namespace mb{
              *
              */
             Device* device = nullptr;
+
+            void setDeviceOnline(bool status){
+                if(device)
+                    device->setOnline(status);
+            }
 
             RegisterCache* data_cache = nullptr;
 
@@ -266,7 +270,6 @@ namespace mb{
                     data_cache->update(buffer, -1);
                 return status;
             }
-
 
             /**
              * @brief Set the Value of the register
