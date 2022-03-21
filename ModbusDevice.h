@@ -77,9 +77,10 @@ namespace mb{
              */
             bool online() const;
 
-        protected:
-            void setOnline(bool status);
+            virtual void setOnline(bool status) const;
 
+        protected:
+            std::unique_ptr<bool> _online{std::make_unique<bool>(false)};
         private:
             /**
              * @brief Initialize device. Called inside constructor
@@ -88,7 +89,7 @@ namespace mb{
              * @param port Port number of the device
              */
             void init(const char* ipAddress, int port = 502);
-            bool _online;
+
     };
 
     /**

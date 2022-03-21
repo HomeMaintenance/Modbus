@@ -81,8 +81,8 @@ namespace mb{
              */
             Device* device = nullptr;
 
-            void setDeviceOnline(bool status){
-                if(device)
+            void setDeviceOnline(const bool& status) const {
+                if(device != nullptr)
                     device->setOnline(status);
             }
 
@@ -138,7 +138,11 @@ namespace mb{
                 int temp32{0};
                 long temp64{0};
                 T tempT{0};
-                std::vector<uint16_t> rawData = readRawData(force, ret);
+                bool _ret;
+                std::vector<uint16_t> rawData = readRawData(force, &_ret);
+                setDeviceOnline(_ret);
+                if(ret)
+                    *ret = _ret;
                 if(rawData.size() != dataSize){
                     std::string assert_message = "\tInvalid data size read from device " + device->ipAddress + ", expected " + std::to_string(dataSize) + " got " + std::to_string(rawData.size()) + ".\n\t";
                     assert_message += std::string("Error: \"" + std::string(modbus_strerror(errno)) + "\"\n");

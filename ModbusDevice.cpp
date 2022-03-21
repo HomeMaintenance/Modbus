@@ -81,12 +81,12 @@ namespace mb{
         }
     }
 
-    void Device::setOnline(bool status){
-        if(status != _online)
-            _online = status;
+    void Device::setOnline(bool status) const {
+        if(status != *_online)
+            *_online = status;
     }
 
     bool Device::online() const {
-        return _online;
+        return *_online;
     }
 }
