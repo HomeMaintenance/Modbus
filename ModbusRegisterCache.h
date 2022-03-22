@@ -19,6 +19,7 @@ private:
     std::chrono::duration<float, std::milli> time;
     std::vector<uint16_t> data;
     unsigned int _register_read_status;
-    const unsigned int size;
+    const int size;
+    bool _dirty;
 };
 }
