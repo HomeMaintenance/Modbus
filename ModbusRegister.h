@@ -38,7 +38,7 @@ namespace mb{
                 dataSize(sizeof(T)/2),
                 device(device_)
             {
-                data_cache = new RegisterCache();
+                data_cache = new RegisterCache(dataSize);
                 auto data = readRawData(true);
             }
             Register(const Register& other) = delete;
@@ -74,7 +74,7 @@ namespace mb{
              * @brief Length of the register in numbers of words(16bit)
              *
              */
-            unsigned short dataSize{0};
+            const unsigned short dataSize;
             /**
              * @brief #mb::Device instance this register belongs to
              *
@@ -119,7 +119,7 @@ namespace mb{
                 int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
                 data_cache->update(data, status);
                 if (ret) {
-                    *ret = status == dataSize;
+                    *ret = status != -1;
                 }
                 return data_cache->get_data();
             }
