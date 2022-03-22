@@ -95,7 +95,7 @@ namespace mb{
              * @param ret Return status (true: success, false: fail)
              * @return std::vector<uint16_t> Data vector with raw data from the register
              */
-            std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr) const
+            std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr, int* status = nullptr) const
             {
                 #ifdef MODBUS_DEBUG
                 std::cout << "Reading  " << device->ipAddress << " register " << addr << ", " << dataSize << std::endl;
@@ -116,10 +116,13 @@ namespace mb{
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
                 std::lock_guard<std::mutex> lk(device->modbus_mtx);
-                int status = modbus_read_registers(device->connection, addr, dataSize, data.data());
-                data_cache->update(data, status);
-                if (ret) {
-                    *ret = status == dataSize;
+                const int _status = modbus_read_registers(device->connection, addr, dataSize, data.data());
+                data_cache->update(data, _status);
+                if(status){
+                    *status = _status;
+                }
+                if(ret) {
+                    *ret = _status == dataSize;
                 }
                 return data_cache->get_data();
             }
@@ -139,12 +142,13 @@ namespace mb{
                 long temp64{0};
                 T tempT{0};
                 bool _ret;
-                std::vector<uint16_t> rawData = readRawData(force, &_ret);
+                int status;
+                std::vector<uint16_t> rawData = readRawData(force, &_ret, &status);
                 setDeviceOnline(_ret);
                 if(ret)
                     *ret = _ret;
                 if(!_ret){
-                    std::string assert_message = "\tInvalid data size read from device " + device->ipAddress + ", expected " + std::to_string(dataSize) + " got " + std::to_string(rawData.size()) + ".\n\t";
+                    std::string assert_message = "\tInvalid data size read from device " + device->ipAddress + ", expected " + std::to_string(dataSize) + " got " + std::to_string(status) + ".\n\t";
                     assert_message += std::string("Error: \"" + std::string(modbus_strerror(errno)) + "\"\n");
                     std::cout<<assert_message<<std::endl;
                     return static_cast<T>(0);

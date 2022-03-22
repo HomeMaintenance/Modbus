@@ -9,15 +9,15 @@ RegisterCache::RegisterCache(unsigned int _size): size(_size)
 void RegisterCache::update(std::vector<uint16_t>& _data, int last_read_status){
     time = std::chrono::steady_clock::now().time_since_epoch();
     _dirty = last_read_status != size;
-    if(!retain_last_valid || _dirty)
+    if(!_dirty)
         data = _data;
     _register_read_status = last_read_status;
 }
 
 std::vector<uint16_t> RegisterCache::get_data() const{
-    if(retain_last_valid || _dirty)
+    if(retain_last_valid || !_dirty)
         return data;
-    return std::vector<uint16_t>(size, 0);
+    return std::vector<uint16_t>(0);
 }
 
 int RegisterCache::register_read_status(){
