@@ -7,9 +7,7 @@
 #include <variant>
 #include "ModbusDevice.h"
 #include "ModbusRegisterCache.h"
-#ifdef MODBUS_DEBUG
 #include <iostream>
-#endif
 
 namespace mb{
 
