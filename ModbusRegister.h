@@ -64,6 +64,19 @@ namespace mb{
 
             int cache_max_age{3000}; // milliseconds
 
+            void enable_log(){
+                _enable_log = true;
+            }
+
+            void disable_log(){
+                _enable_log = false;
+            }
+
+            void log(std::string message) const {
+                if(_enable_log)
+                    std::cout << message << std::endl;
+            }
+
         private:
             /**
              * @brief Data vector for raw data of the register
@@ -88,6 +101,8 @@ namespace mb{
 
             RegisterCache* data_cache = nullptr;
 
+            bool _enable_log = false;
+
         public:
             /**
              * @brief Read raw data from the register
@@ -98,11 +113,11 @@ namespace mb{
             std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr, int* status = nullptr) const
             {
                 #ifdef MODBUS_DEBUG
-                std::cout << "Reading  " << device->ipAddress << " register " << addr << ", " << dataSize << std::endl;
+                log("Reading  " + device->ipAddress + " register " std::to_string(addr) + ", " + std::to_string(dataSize));
                 #endif
                 if(!force && !data_cache->dirty()){
                     #ifdef MODBUS_DEBUG
-                    std::cout << "Use cache" << std::endl;
+                    log("Use cache");
                     #endif
                     if(ret)
                         *ret = true;
@@ -110,8 +125,8 @@ namespace mb{
                 }
                 #ifdef MODBUS_DEBUG
                 if(force)
-                    std::cout << "Forced update, ";
-                std::cout << "Update cache" << std::endl;
+                    log("Forced update");
+                log("Update cache");
                 #endif
                 assert(device != nullptr && "Device must not be nullptr");
                 std::vector<uint16_t> data(dataSize,0);
@@ -154,7 +169,7 @@ namespace mb{
                     return static_cast<T>(0);
                 }
                 #ifdef MODBUS_DEBUG
-                std::cout << "\t success" << std::endl;
+                log("\t success");
                 #endif
                 switch(rawData.size()) {
                     case 2:
