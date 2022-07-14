@@ -113,7 +113,7 @@ namespace mb{
             std::vector<uint16_t> readRawData(bool force = false, bool* ret = nullptr, int* status = nullptr) const
             {
                 #ifdef MODBUS_DEBUG
-                log("Reading  " + device->ipAddress + " register " std::to_string(addr) + ", " + std::to_string(dataSize));
+                log("Reading  " + device->ipAddress + " register " + std::to_string(addr) + ", " + std::to_string(dataSize));
                 #endif
                 if(!force && !data_cache->dirty()){
                     #ifdef MODBUS_DEBUG
