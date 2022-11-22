@@ -37,12 +37,13 @@ namespace mb{
                 device(device_)
             {
                 data_cache = new RegisterCache(dataSize);
-                auto data = readRawData(true);
             }
             Register(const Register& other) = delete;
             virtual ~Register(){
-                delete data_cache;
-                data_cache = nullptr;
+                if(data_cache != nullptr){
+                    delete data_cache;
+                    data_cache = nullptr;
+                }
             };
             /**
              * @brief Address of the register
@@ -198,7 +199,13 @@ namespace mb{
             {
                 assert(device != nullptr);
                 std::lock_guard<std::mutex> lk(device->modbus_mtx);
-                int status = modbus_write_registers(device->connection, addr, dataSize, input.data());
+                int status = -1;
+                if(input.size() == 1){
+                    status = modbus_write_register(device->connection, addr, input[0]);
+                }
+                if(status < 0){ // try again if write_register fails
+                    status = modbus_write_registers(device->connection, addr, dataSize, input.data());
+                }
                 bool result = status == dataSize;
                 if (ret) {
                     *ret = result;
@@ -213,8 +220,29 @@ namespace mb{
              * @param input Data to be written to the register
              * @param ret Return status (true: success, false: fail)
              */
+            bool setValue(unsigned short input, bool* ret = nullptr)
+            {
+                input /= factor;
+                std::vector<uint16_t> buffer{input};
+                bool status = writeRawData(buffer,&status);
+                if(ret)
+                    *ret = status;
+                if(status)
+                    data_cache->update(buffer, dataSize);
+                else
+                    data_cache->update(buffer, -1);
+                return status;
+            };
+
+            /**
+             * @brief Set the Value of the register
+             *
+             * @param input Data to be written to the register
+             * @param ret Return status (true: success, false: fail)
+             */
             bool setValue(short input, bool* ret = nullptr)
             {
+                input /= factor;
                 std::vector<uint16_t> buffer(dataSize);
                 buffer[0] = input & 0xFFFFFFFF;
                 bool status = writeRawData(buffer,&status);
