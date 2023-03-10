@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <cassert>
-#include <variant>
 #include "ModbusDevice.h"
 #include "ModbusRegisterCache.h"
 #include <iostream>
