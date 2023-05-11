@@ -3,10 +3,10 @@
 TestDevice::TestDevice(std::string ipAddress, int port):
     mb::Device(ipAddress, port)
 {
-    intRegister = new mb::Register<int>(this, 10);
-    shortRegister = new mb::Register<short>(this, 12);
-    longRegister = new mb::Register<long>(this, 13);
-    floatRegister = new mb::Register<float>(this, 15);
+    intRegister = new mb::Register<int>(this, 40005);
+    shortRegister = new mb::Register<short>(this, 40005);
+    longRegister = new mb::Register<long>(this, 40005);
+    floatRegister = new mb::Register<float>(this, 40005);
 }
 
 TestDevice::~TestDevice(){
