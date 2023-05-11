@@ -35,15 +35,11 @@ namespace mb{
                 dataSize(sizeof(T)/2),
                 device(device_)
             {
-                data_cache = new RegisterCache(dataSize);
+                data_cache = std::make_unique<RegisterCache>(dataSize);
             }
             Register(const Register& other) = delete;
             virtual ~Register(){
-                if(data_cache != nullptr){
-                    delete data_cache;
-                    data_cache = nullptr;
-                }
-            };
+            }
             /**
              * @brief Address of the register
              *
@@ -97,7 +93,7 @@ namespace mb{
                     device->setOnline(status);
             }
 
-            RegisterCache* data_cache = nullptr;
+            std::unique_ptr<RegisterCache> data_cache;
 
             bool _enable_log = false;
 
@@ -170,6 +166,10 @@ namespace mb{
                 log("\t success");
                 #endif
                 switch(rawData.size()) {
+                    case 1:
+                        temp16 = rawData[0];
+                        tempT = static_cast<T>(temp16*factor);
+                        break;
                     case 2:
                         temp32 = MODBUS_GET_INT32_FROM_INT16(rawData.data(), 0);
                         tempT = static_cast<T>(temp32*factor);
@@ -180,9 +180,7 @@ namespace mb{
                         return tempT;
                         break;
                     default:
-                        temp16 = rawData[0];
-                        tempT = static_cast<T>(temp16*factor);
-                        break;
+                        return std::numeric_limits<T>::quiet_NaN();
                     break;
                 }
                 return tempT;
