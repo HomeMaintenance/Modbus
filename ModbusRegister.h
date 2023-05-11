@@ -180,7 +180,7 @@ namespace mb{
                         return tempT;
                         break;
                     default:
-                        return std::numeric_limits<T>::quiet_NaN();
+                        tempT = std::numeric_limits<T>::quiet_NaN();
                     break;
                 }
                 return tempT;

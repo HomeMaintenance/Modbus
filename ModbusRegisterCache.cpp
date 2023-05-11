@@ -6,7 +6,7 @@ RegisterCache::RegisterCache(unsigned int _size): size(_size)
     time = std::chrono::steady_clock::now().time_since_epoch();
 }
 
-void RegisterCache::update(std::vector<uint16_t>& _data, int last_read_status){
+void RegisterCache::update(const std::vector<uint16_t>& _data, int last_read_status){
     time = std::chrono::steady_clock::now().time_since_epoch();
     _dirty = last_read_status != size;
     if(!_dirty)

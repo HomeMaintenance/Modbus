@@ -9,7 +9,7 @@ class RegisterCache{
 public:
     RegisterCache(unsigned int size);
     virtual ~RegisterCache() = default;
-    void update(std::vector<uint16_t>& _data, int last_read_status);
+    void update(const std::vector<uint16_t>& _data, int last_read_status);
     std::vector<uint16_t> get_data() const;
     int register_read_status();
     bool dirty() const;
@@ -18,7 +18,7 @@ public:
 private:
     std::chrono::duration<float, std::milli> time;
     std::vector<uint16_t> data;
-    unsigned int _register_read_status;
+    int _register_read_status;
     const int size;
     bool _dirty;
 };
