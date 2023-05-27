@@ -36,7 +36,8 @@ namespace mb{
     bool Device::connect(const char* ipAddress_, int port_)
     {
         connection = modbus_new_tcp(ipAddress_,port_);
-        assert(modbus_set_error_recovery(connection, static_cast<modbus_error_recovery_mode>(MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL)) == 0);
+        if(!_reconnectEnabled)
+            assert(modbus_set_error_recovery(connection, static_cast<modbus_error_recovery_mode>(MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL)) == 0);
         assert(modbus_set_response_timeout(connection, 3, 0) == 0);
         assert(modbus_set_byte_timeout(connection, 3, 0) == 0);
         bool connect_error = modbus_connect(connection) < 0;
@@ -109,6 +110,8 @@ namespace mb{
     void Device::enableReconnect(bool reconnect) {
         if(_reconnectEnabled == reconnect)
             return;
+        if(connection)
+            modbus_set_error_recovery(connection, static_cast<modbus_error_recovery_mode>(MODBUS_ERROR_RECOVERY_NONE));
         _reconnectEnabled = reconnect;
     }
 
