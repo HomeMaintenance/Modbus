@@ -79,8 +79,13 @@ namespace mb{
 
             virtual void setOnline(bool status) const;
 
+            void enableReconnect(bool reconnect);
+            bool reconnectEnabled() const;
+
+            void reconnect();
+
         protected:
-            std::unique_ptr<bool> _online{std::make_unique<bool>(false)};
+            mutable bool _online = false;
         private:
             /**
              * @brief Initialize device. Called inside constructor
@@ -90,6 +95,8 @@ namespace mb{
              */
             void init(const char* ipAddress, int port = 502);
 
+    private:
+        bool _reconnectEnabled = false;
     };
 
     /**

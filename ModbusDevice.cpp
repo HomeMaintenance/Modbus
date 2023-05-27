@@ -4,6 +4,8 @@
 #include <ModbusDevice.h>
 #include <chrono>
 #include <exception>
+#include <thread>
+#include <chrono>
 
 namespace mb{
 
@@ -11,7 +13,7 @@ namespace mb{
     {
         ipAddress = ipAddress_;
         port = port_;
-        connect(ipAddress.c_str(), port);
+        _online = connect(ipAddress.c_str(), port);
     }
 
 
@@ -82,11 +84,35 @@ namespace mb{
     }
 
     void Device::setOnline(bool status) const {
-        if(status != *_online)
-            *_online = status;
+        if(status != _online)
+            _online = status;
     }
 
     bool Device::online() const {
-        return *_online;
+        return _online;
+    }
+
+    void Device::reconnect() {
+        std::cout << "modbus " << ipAddress << ":" << port << " reconnecting..." << std::endl;
+        disconnect();
+        int reconnectCounter = 0;
+        while(!connection){
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            connect(ipAddress.c_str(), port);
+            reconnectCounter++;
+            std::cout << "\ttry: " << reconnectCounter << std::endl;
+        }
+        _online = true;
+        std::cout << "reconnected" << std::endl;
+    }
+
+    void Device::enableReconnect(bool reconnect) {
+        if(_reconnectEnabled == reconnect)
+            return;
+        _reconnectEnabled = reconnect;
+    }
+
+    bool Device::reconnectEnabled() const {
+        return _reconnectEnabled;
     }
 }

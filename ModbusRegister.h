@@ -150,10 +150,17 @@ namespace mb{
                 int temp32{0};
                 long temp64{0};
                 T tempT{0};
-                bool _ret;
+                bool _ret = false;
                 int status;
-                std::vector<uint16_t> rawData = readRawData(force, &_ret, &status);
-                setDeviceOnline(_ret);
+                const bool reconnectEnabled = device->reconnectEnabled();
+                std::vector<uint16_t> rawData(dataSize);
+                do{
+                    rawData = readRawData(force, &_ret, &status);
+                    setDeviceOnline(_ret);
+                    if(reconnectEnabled)
+                        device->reconnect();
+                }while(!_ret && reconnectEnabled);
+
                 if(ret)
                     *ret = _ret;
                 if(!_ret){
