@@ -157,7 +157,7 @@ namespace mb{
                 do{
                     rawData = readRawData(force, &_ret, &status);
                     setDeviceOnline(_ret);
-                    if(reconnectEnabled)
+                    if(!_ret && reconnectEnabled)
                         device->reconnect();
                 }while(!_ret && reconnectEnabled);
 
