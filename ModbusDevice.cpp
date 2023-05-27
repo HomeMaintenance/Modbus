@@ -94,6 +94,7 @@ namespace mb{
     }
 
     void Device::reconnect() {
+        std::lock_guard<std::mutex> lk(modbus_mtx);
         std::cout << "modbus " << ipAddress << ":" << port << " reconnecting..." << std::endl;
         disconnect();
         int reconnectCounter = 0;
